@@ -1,5 +1,17 @@
+$maincolor: #062145;
+$secondcolor:#041936;
+$lightcolor:#00C4FF;
+@mixin touchFeedback($color) {
+  &:hover{
+    background: lighten($color,15%);
+  }
+  &:active{
+    background: lighten($color,10%);
+  }
+}
+
 .warp{
-  background-color: #293B29;
+  background-color: #E8E8E8;
 }
 .container{
   margin: 0 auto;
@@ -8,5 +20,79 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.calc{
+  width: 350px;
+  color:#FFFFFF;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0px 20px 40px rgba(#000000,.4);
+}
+.calc-monitor{
+  background-color: $secondcolor;
+  padding: 16px 20px 9px 20px;
+  text-align: right;
+  font-family: 'Roboto', sans-serif;
+  span{
+    display: block;   
+    font-size: 16px;
+    color:$lightcolor;
+    line-height: 19px;
+  }
+  p{
+    font-size: 56px;
+    line-height: 66px;
+    white-space: nowrap;
+    overflow-x: hidden;
+  }
+}
+.calc-body{
+  background-color: $maincolor;
+  padding: 16px 8px 0px 8px;
+}
+.calc-button{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  li{
+    margin-bottom: 16px;
+  }
+  button{
+    background: transparent;
+    color: #FFFFFF;
+    border: none;
+    font-size: 24px;
+    width: 72px;
+    height: 64px;
+    border-radius: 16px;
+    transition: all .2s;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    &:focus{
+      outline: none;
+    }
+    @include touchFeedback($maincolor);
+    &.symbol{
+      background: $secondcolor;
+      @include touchFeedback($secondcolor);
+    }
+    &.clear{
+      color: $lightcolor;
+    }
+    &.equal{
+      width: 155px;
+      height: 64px;
+      text-align: right;
+      background: linear-gradient(to right,#00C4FF,#6C00FF);
+      padding-right: 30px;
+      &:hover{
+        border-radius: 25px;
+      }
+      &:active{
+        border-radius: 0px;
+      }
+    }
+  }
 }
 
