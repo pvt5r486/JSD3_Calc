@@ -12,30 +12,30 @@
     <div class="container">
       <div class="calc">
         <div class="calc-monitor">
-          <span>1,280 × 30 − 200</span>
-          <p>123,456,789</p>
+          <span>{{formulaString}}</span>
+          <p>{{result}}</p>
         </div>
         <div class="calc-body">
           <ul class="calc-button">
-            <li><button type="button">7</button></li>
-            <li><button type="button">8</button></li>
-            <li><button type="button">9</button></li>
-            <li><button type="button" class="symbol">÷</button></li>
-            <li><button type="button">4</button></li>
-            <li><button type="button">5</button></li>
-            <li><button type="button">6</button></li>
-            <li><button type="button" class="symbol">×</button></li>
-            <li><button type="button">1</button></li>
-            <li><button type="button">2</button></li>
-            <li><button type="button">3</button></li>
-            <li><button type="button" class="symbol">+</button></li>
-            <li><button type="button">0</button></li>
-            <li><button type="button">00</button></li>
-            <li><button type="button">.</button></li>
-            <li><button type="button" class="symbol">-</button></li>
-            <li><button type="button" class="clear">AC</button></li>
-            <li><button type="button" class="clear">⌫</button></li>
-            <li><button type="button" class="equal">=</button></li>
+            <li><button type="button" @click="inputKey('7')">7</button></li>
+            <li><button type="button" @click="inputKey('8')">8</button></li>
+            <li><button type="button" @click="inputKey('9')">9</button></li>
+            <li><button type="button" class="symbol" @click="symbolFunc('/')">÷</button></li>
+            <li><button type="button" @click="inputKey('4')">4</button></li>
+            <li><button type="button" @click="inputKey('5')">5</button></li>
+            <li><button type="button" @click="inputKey('6')">6</button></li>
+            <li><button type="button" class="symbol" @click="symbolFunc('*')">×</button></li>
+            <li><button type="button" @click="inputKey('1')">1</button></li>
+            <li><button type="button" @click="inputKey('2')">2</button></li>
+            <li><button type="button" @click="inputKey('3')">3</button></li>
+            <li><button type="button" class="symbol" @click="symbolFunc('+')">+</button></li>
+            <li><button type="button" @click="inputKey('0')">0</button></li>
+            <li><button type="button" @click="inputKey('00')">00</button></li>
+            <li><button type="button" @click="inputKey('.')">.</button></li>
+            <li><button type="button" class="symbol" @click="symbolFunc('-')">-</button></li>
+            <li><button type="button" class="clear" @click="reset()">AC</button></li>
+            <li><button type="button" class="clear" @click="backSpace()">⌫</button></li>
+            <li><button type="button" class="equal"  @click="equal()">=</button></li>
           </ul>
         </div>
       </div>
@@ -48,7 +48,139 @@
   var app = new Vue({
     el: '#app',
     data: {
-      message: 'Hello Vue!'
-    }
+      formulaString: '',
+      formula: '',
+      symbol: false,
+      monitorString: '',
+      tempCalc: 0,
+      formulaLimit: 48,
+      keyInLimit: 9,
+      keyIn: true,
+      endCalc: false
+    },
+    methods: {
+      inputKey(key){
+        const vm = this;
+        if (vm.monitorString === ''){
+          // 不可以是00開頭 不可以是.開頭
+          let reg = /^\.|00/;
+          if (reg.test(key) === true) { return }
+        }
+        if (vm.keyIn){
+          if (vm.endCalc === true){
+            // 按了等於之後，又直接輸入數字則視為重新開始一個新計算
+            // 按了等於之後，又直接輸入符號則以當前顯示值繼續計算
+            vm.monitorString = '';
+            vm.endCalc = false;
+          }
+          vm.monitorString = vm.monitorString + key;
+          vm.symbol = false;
+          vm.tempCalc = Math.round(eval(vm.formula + vm.monitorString) * vm.subZero(vm.keyInLimit)) / vm.subZero(vm.keyInLimit);
+        }
+      },
+      symbolFunc(key){
+        const vm = this;
+        let changeSymbol = '';
+        if (vm.monitorString === ''){ return }
+        switch (key) {
+          case '+':
+          changeSymbol = '+';
+          break;
+          case '-':
+          changeSymbol = '-';
+          break;
+          case '*':
+          changeSymbol = '×';
+          break;
+          case '/':
+          changeSymbol = '÷';
+          break;
+        }
+        if (!vm.symbol){
+          vm.formulaString = vm.formulaString + vm.currency(vm.monitorString) + ' ' + changeSymbol + ' ';
+          vm.formula = vm.formula + vm.monitorString + key;
+          vm.monitorString = '';
+          vm.symbol = true;
+        }
+      },
+      equal(){
+        const vm = this;
+        if (!vm.symbol && vm.tempCalc !== 0){     
+          vm.monitorString = vm.tempCalc + '';
+          vm.formulaString = '';  
+          vm.formula = '';
+          vm.tempCalc = 0;
+          vm.endCalc = true;
+        }
+      },
+      backSpace(){
+        const vm = this;
+        if(vm.endCalc !== true){
+          vm.monitorString = vm.monitorString.substring(0,vm.monitorString.length - 1);
+        }
+      },
+      reset(){
+        const vm = this;
+        vm.formulaString = '';
+        vm.symbol = false;
+        vm.monitorString = '';
+        vm.tempCalc = 0;
+        vm.formula = '';
+        vm.keyIn = true;
+        vm.endCalc = false;
+      },
+      subZero(number){
+        const vm = this;
+        let tempStr = '1';
+        for(let i = 0; i < vm.keyInLimit; i++){
+          tempStr = tempStr + '0';
+        }
+        return Number(tempStr)
+      },
+      currency(number){
+        let parts = number.toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+      }
+    },
+    computed: {
+      result(){
+        const vm = this;
+        if(vm.monitorString === ''){ 
+          return 0 
+        } else {
+          // 補上千分位
+          let parts = vm.monitorString.toString().split('.');
+          parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          return parts.join('.');
+        }
+      }
+    },
+    watch: {
+      monitorString(){
+        const vm = this;
+        let monitorEl = document.querySelector('.calc-monitor p');
+        // 限制輸入 & 改變文字大小
+        if(vm.monitorString.length < vm.keyInLimit){
+          vm.keyIn = true;
+          monitorEl.style.fontSize = "56px";
+        } else {
+          vm.keyIn = false;
+          monitorEl.style.fontSize = "20px";
+        }
+      },
+      formulaString(){
+        const vm = this;
+        let formulaEl = document.querySelector('.calc-monitor span');
+        // 取得溢出的字元
+        if(vm.formulaString.length > vm.formulaLimit){
+          let strLength = vm.formulaString.length - vm.formulaLimit;
+          // 取得指定範圍的文字
+          vm.formulaString =  vm.formulaString.substring(strLength);
+        }
+      }
+    },
   })
 </script>
+
+

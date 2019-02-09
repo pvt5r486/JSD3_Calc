@@ -34,7 +34,8 @@ $lightcolor:#00C4FF;
   text-align: right;
   font-family: 'Roboto', sans-serif;
   span{
-    display: block;   
+    display: block;
+    height: 19px;
     font-size: 16px;
     color:$lightcolor;
     line-height: 19px;
@@ -42,6 +43,8 @@ $lightcolor:#00C4FF;
   p{
     font-size: 56px;
     line-height: 66px;
+  }
+  span,p{
     white-space: nowrap;
     overflow-x: hidden;
   }
